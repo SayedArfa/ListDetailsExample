@@ -69,15 +69,15 @@ class ItemListFragment : BaseFragment() {
                 }
                 is ResponseWrapper.Error -> {
                     viewBinding.progressBar.visibility = View.GONE
-                    when (it.errorType) {
-                        is ErrorType.ApiError -> {}
-                        is ErrorType.JsonParseError -> {}
-                        is ErrorType.NetworkError -> {}
-                        ErrorType.NoInternetError -> {}
-                        is ErrorType.UnknownError -> {}
+                    val errorMessage: String? = when (val errorType = it.errorType) {
+                        is ErrorType.ApiError -> errorType.errorBody.toString()
+                        is ErrorType.JsonParseError -> errorType.exception?.localizedMessage
+                        is ErrorType.NetworkError -> errorType.exception.localizedMessage
+                        ErrorType.NoInternetError -> "No Internet connection"
+                        is ErrorType.UnknownError -> errorType.exception?.localizedMessage
                     }
                     snackBar =
-                        Snackbar.make(viewBinding.root, "Error: ${it}", Snackbar.LENGTH_INDEFINITE)
+                        Snackbar.make(viewBinding.root, "$errorMessage", Snackbar.LENGTH_INDEFINITE)
                             .apply {
                                 setAction("retry") {
                                     itemListViewModel.loadList()
